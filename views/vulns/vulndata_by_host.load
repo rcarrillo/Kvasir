@@ -83,6 +83,7 @@ jQuery(document).ready(function() {
             /* Description */ { "bVisible": false },
             /* Title */     { "bVisible": false },
             /* Exploits */  { "bVisible": false },
+            /* Remediations */     null,
         ],
         "aaSorting": [[ 5, "desc" ]],
         "sAjaxSource": "{{=URL('vulndata_by_host.json', args=request.args(0))}}",
