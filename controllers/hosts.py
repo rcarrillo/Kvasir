@@ -214,7 +214,7 @@ def detail():
         redirect(URL('hosts', 'list'))
 
     hostipaddr=record.f_ipaddr
-    engineername = db.auth_user[record.f_engineer].username
+    engineername = db.auth_user[record.f_engineer].username if record.f_engineer else T('Nobody')
 
     if record.f_macaddr:
         oui_res = oui_lookup(mac_addr=record.f_macaddr, nmap_os_db="%s/nmap-mac-prefixes" % settings.nmap_sharedir)
