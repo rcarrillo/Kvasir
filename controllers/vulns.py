@@ -387,6 +387,12 @@ def vulndata_by_host():
                 else:
                     expl_count = ""
 
+                remediations = db(
+                        (db.t_vuln_remediations.f_vulndata_id==vulninfo.f_vulndata_id) &
+                        (db.t_vuln_remediations.f_remediations_id==db.t_remediations.id)
+                    ).select(db.t_remediations.f_name)
+                remediations_list = ', '.join([r.f_name for r in remediations])
+
                 atxt['0'] = IMG(_src=URL(request.application,'static','images/details_open.png')).xml()
                 atxt['1'] = A('edit', _target="service_vuln_update_%s" % (vulninfo.id), _href=URL('vulns', 'service_vulns_edit', args=vulninfo.id, extension='html')).xml()
                 if vulninfo.f_exploited:
@@ -403,6 +409,7 @@ def vulndata_by_host():
                 atxt['10'] = MARKMIN(vulndetails.f_description).xml()
                 atxt['11'] = vulndetails.f_title
                 atxt['12'] = "<br />\n".join(exploit_list)
+                atxt['13'] = remediations_list
                 atxt['DT_RowId'] = vulninfo.id
                 aaData.append(atxt)
 
@@ -439,6 +446,7 @@ def vulndata_by_host():
                           TH(T('Description')),
                           TH(T('Title')),
                           TH(T('Exploit List')),
+                          TH(T('Remediations')),
                           )  ),
                  _class="datatable",
                  _id="vulntable",

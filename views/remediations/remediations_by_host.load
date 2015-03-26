@@ -1,0 +1,73 @@
+<h2>Remediations for host {{=host_title_maker(host)}}</h2>
+
+<div id="remediations_list">
+    {{=form}}
+</div>
+
+<script>
+var remediationstable;
+
+function remediationstableDetails ( nTr ) {
+    var aData = remediationstable.fnGetData( nTr );
+    var sOut = "<table class=\"table\">"
+    sOut += "<tr><td>Title:</td><td>"+aData[1]+"</td></tr>"
+    sOut += "<tr><td>Description:</td><td>"+aData[4]+"</td></tr>"
+    sOut += "</table>"
+
+    return sOut;
+}
+
+jQuery(document).ready(function() {
+
+    remediationstable = jQuery('#remediationstable').dataTable({
+        "sDom": 'T<"clear">lfrtip',
+        "oTableTools": {
+            "sRowSelect": "multi",
+            "sSelectedClass": "row_selected",
+            "sSwfPath": "{{=URL('static','TableTools/swf/copy_csv_xls.swf')}}",
+            "aButtons": [
+                "select_all",
+                "select_none",
+                "copy",
+                "csv"
+            ]
+        },
+        "aoColumns": [
+            /* MoreInfo */  null,
+            /* Name */      null,
+            /* Action */    null,
+            /* Applied */   null,
+            /* Info */      { "bVisible": false },
+        ],
+        "aaSorting": [[ 4, "asc" ]],
+        "sAjaxSource": "{{=URL('remediations_by_host.json', args=request.args(0))}}",
+    });
+
+    jQuery('#remediationstable tbody td img').live( 'click', function () {
+        var nTr = this.parentNode.parentNode;
+        if ( this.src.match('details_close') ) {
+            /* This row is already open - close it */
+            this.src = "{{=URL('static','images/details_open.png')}}";
+            remediationstable.fnClose( nTr );
+        } else {
+            /* Open this row */
+            this.src = "{{=URL('static','images/details_close.png')}}";
+            remediationstable.fnOpen( nTr, remediationstableDetails(nTr), 'details' );
+        }
+        $(nTr).removeClass('row_selected');
+    });
+
+    jQuery('#remediationstable').on('click', 'tbody td input.apply_remediation', function(event) {
+    	var nTr = this.parentNode.parentNode;
+
+    	bootbox.confirm("{{=T('Are you sure you did apply the remediation to the host?')}}", "{{=T('Cancel')}}", "{{=T('Apply')}}", function (confirmed) {
+    	    if (confirmed) {
+    	        window.location = {{=XML('"%s/" + %s + "?f_hosts_id=%d"' % (URL('apply.html'), 'nTr.id', host.id))}}
+    	    }
+    	});
+    });
+
+});
+
+</script>
+

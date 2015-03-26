@@ -101,6 +101,7 @@
             <li class="active"><a href="#aa_list" data-toggle="tab"><u>a</u>a</a></li>
             <li><a href="#service_list" data-toggle="tab"><u>S</u>ervices</a></li>
             <li><a href="#vulns_list" data-toggle="tab"><u>V</u>ulnerabilties</a></li>
+            <li><a href="#remediations_list" data-toggle="tab"><u>R</u>emediations</a></li>
             <li><a href="#evidence_list" data-toggle="tab"><u>E</u>vidence</a></li>
             <li><a href="#os_list" data-toggle="tab"><u>O</u>perating System</a></li>
             <li><a href="#accounts_list" data-toggle="tab">Accoun<u>t</u>s</a></li>
@@ -120,6 +121,10 @@
 
             <div class="tab-pane" id="vulns_list">
                 {{=LOAD('vulns','vulndata_by_host.load',args=[host.record.id],ajax=False,target='vulns_list')}}
+            </div>
+
+            <div class="tab-pane" id="remediations_list">
+                {{=LOAD('remediations','remediations_by_host.load',args=[host.record.id],ajax=False,target='remediations_list')}}
             </div>
 
             <div class="tab-pane" id="evidence_list">
