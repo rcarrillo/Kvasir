@@ -1,5 +1,6 @@
 <h2>Vulnerabilties for host {{=host_title_maker(host)}}</h2>
 
+{{if auth.has_membership('admin'):}}
 {{=XML(add.formModal())}}
 
 <div id="vuln_list">
@@ -16,6 +17,9 @@
     <div id="dialog-add_vulndata">
     </div>
 </div>
+{{else:}}
+<div id="vuln_list">{{=form}}</div>
+{{pass}}
 
 <script>
 var vulntable;
