@@ -21,6 +21,11 @@ auth.settings.extra_fields['auth_user']= [
     Field('f_tabletools', 'boolean', label=T('Enable TableTools'), default=True),
     Field('f_scheduler_tasks', 'boolean', label=T('Default Background Tasks'), default=True),
 ]
+
+auth.settings.extra_fields['auth_group'] = [
+    Field('f_asset_group', 'boolean', label=T('It\'s asset group'), default=False),
+]
+
 auth.define_tables(username=True, fake_migrate=settings.fake_migrate, migrate=settings.migrate)   # creates all needed tables
 
 auth.settings.actions_disabled.append('register')

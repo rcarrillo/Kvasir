@@ -154,4 +154,7 @@ response.menu = [
               (T('Purge Data'), URL(_a,'default','purge_data')==URL(),URL(_a,'default','purge_data'),[]),
           ]),
      ]),
+] if auth.has_membership('admin') else [
+    (T('Home'), False, URL(_a,'default','index'), []),
+    (T('All Hosts'), False, URL(_a,'hosts','list'), []),
 ]

@@ -157,6 +157,7 @@ def create_hostfilter_query(fdata, q=None, dbname=None):
     db = current.globalenv['db']
     cache = current.globalenv['cache']
     session = current.globalenv['session']
+    auth = current.globalenv['auth']
 
     if not isinstance(fdata, dict):
         session.hostfilter = {
@@ -185,6 +186,11 @@ def create_hostfilter_query(fdata, q=None, dbname=None):
         q &= db.t_hosts.f_accessed == accessed
     if followup:
         q &= db.t_hosts.f_followup == followup
+
+    # If user is not admin select only hosts the user can manage. The
+    # 'manage' permission is set in the host edit page.
+    if not auth.has_membership('admin'):
+        q &= auth.accessible_query('manage', db.t_hosts)
 
     if dbname is not None:
         # dbname specified, must add this to the first query

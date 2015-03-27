@@ -1,5 +1,6 @@
 <h2>Services for host {{=host_title_maker(host)}}</h2>
 
+{{if auth.has_membership('admin'):}}
 {{=XML(add.formModal())}}
 
 <div id="services_list">
@@ -20,6 +21,9 @@
     </div>
     {{=form}}
 </div>
+{{else:}}
+<div id="services_list">{{=form}}</div>
+{{pass}}
 
 <script>
 var servicetable;

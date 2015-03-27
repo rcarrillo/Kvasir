@@ -101,6 +101,7 @@
             <li class="active"><a href="#aa_list" data-toggle="tab"><u>a</u>a</a></li>
             <li><a href="#service_list" data-toggle="tab"><u>S</u>ervices</a></li>
             <li><a href="#vulns_list" data-toggle="tab"><u>V</u>ulnerabilties</a></li>
+            {{if auth.has_membership('admin'):}}
             <li><a href="#remediations_list" data-toggle="tab"><u>R</u>emediations</a></li>
             <li><a href="#evidence_list" data-toggle="tab"><u>E</u>vidence</a></li>
             <li><a href="#os_list" data-toggle="tab"><u>O</u>perating System</a></li>
@@ -108,6 +109,7 @@
             <li><a href="#snmp_list" data-toggle="tab">SN<u>M</u>P</a></li>
             <li><a href="#netbios_info" data-toggle="tab">Net<u>B</u>IOS</a></li>
             <li><a href="#tool_output" data-toggle="tab">Tool O<u>u</u>tput</a></li>
+            {{pass}}
         </ul>
 
         <div id="TabContent" class="tab-content">
@@ -122,6 +124,8 @@
             <div class="tab-pane" id="vulns_list">
                 {{=LOAD('vulns','vulndata_by_host.load',args=[host.record.id],ajax=False,target='vulns_list')}}
             </div>
+
+            {{if auth.has_membership('admin'):}}
 
             <div class="tab-pane" id="remediations_list">
                 {{=LOAD('remediations','remediations_by_host.load',args=[host.record.id],ajax=False,target='remediations_list')}}
@@ -152,6 +156,8 @@
             <div class="tab-pane" id="tool_output">
                 {{=LOAD('tooloutput', 'list.load', args=[host.record.id], ajax=False, target='tool_output')}}
             </div>
+
+            {{pass}}
 
         </div>
 
