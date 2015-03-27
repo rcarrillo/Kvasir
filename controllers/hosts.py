@@ -385,15 +385,51 @@ def add():
 def edit():
     """Creates and process a form to edit a host record"""
     record = db.t_hosts(request.args(0)) or redirect(URL('default', 'error', vars={'msg': T('Host record not found')}))
+
+    # An auth group can also be a asset group, which is a set of hosts with
+    # common caracterisitics (e.g. they belong to the same department, they are
+    # all DNS servers or web servers, etc)
+    # A host can belong to more than one asset group.
+
+    # Asset groups the logged-in user has membership
+    q = ((db.auth_membership.user_id==auth.user_id) &
+         (db.auth_membership.group_id==db.auth_group.id) &
+         (db.auth_group.f_asset_group==True))
+
+    # Based on http://blog.jotbe-fx.de/articles/2522/web2py-Normalized-many-to-many-model-with-multiselect-drop-down
+
+    attributes = dict() if request.extension not in ['load', 'json'] else \
+                 dict(buttons=[], _action=URL('edit', args=[record.id]), _id="host_edit_form")
+
+    form=SQLFORM.factory(db.t_hosts,
+        Field('groups', requires=IS_IN_DB(db(q), 'auth_group.id', '%(role)s', multiple=True)), **attributes)
+
+    # Prepopulate form manually, SQLFORM.factory doesn't accept record
+    for field in db.t_hosts:
+        form.vars[field.name] = record[field.name]
+    old_groups = db((db.auth_permission.name=='manage') &
+                       (db.auth_permission.table_name=='t_hosts') &
+                       (db.auth_permission.record_id==record.id)).select(db.auth_permission.group_id)
+    old_groups = [str(group.group_id) for group in old_groups]
+    form.vars['groups'] = old_groups
+
+    if form.process(dbio=False).accepted:
+        new_groups = form.vars['groups']
+        record.update(**db.t_hosts._filter_fields(form.vars))
+        # Add permission to group added newly
+        for group_id in [g for g in new_groups if g not in old_groups]:
+            auth.add_permission(group_id, 'manage', db.t_hosts, record.id)
+        # Remove permission from groups
+        for group_id in [g for g in old_groups if g not in new_groups]:
+            auth.del_permission(group_id, 'manage', db.t_hosts, record.id)
+
     if request.extension in ['load', 'json']:
-        form=SQLFORM(db.t_hosts, record, buttons=[], _action=URL('edit', args=[record.id]), _id="host_edit_form")
-        if form.accepts(request.vars, session):
+        if form.accepted:
             response.flash = "Host information updated"
         elif form.errors:
             response.flash = "Error in form submission"
     else:
         response.title = "%s :: Edit Host" % (settings.title)
-        form=crud.update(db.t_hosts, record, next='edit/[id]')
 
     return dict(form=form)
 
