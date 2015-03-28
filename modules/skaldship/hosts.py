@@ -283,6 +283,24 @@ def host_a_maker(record=None):
 
 ##-------------------------------------------------------------------------
 
+def host_asset_groups(record):
+    if record is None:
+        return None
+
+    auth = current.globalenv['auth']
+    db = current.globalenv['db']
+
+    asset_groups = db(
+                      (db.auth_permission.name=='manage') &
+                      (db.auth_permission.table_name=='t_hosts') &
+                      (db.auth_permission.record_id==record.id) &
+                      (db.auth_group.id==db.auth_permission.group_id)
+                   ).select(db.auth_group.id, db.auth_group.role)
+    return asset_groups
+
+
+##-------------------------------------------------------------------------
+
 def do_host_status(records=[], query=None, asset_group=None, hosts=[]):
     """
     Runs through the t_hosts table and updates the *_count entries.
