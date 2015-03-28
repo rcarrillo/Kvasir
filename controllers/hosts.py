@@ -11,7 +11,7 @@
 ## Author: Kurt Grutzmacher <grutz@jingojango.net>
 ##--------------------------------------#
 
-from skaldship.hosts import create_hostfilter_query, get_host_record, pagination, host_title_maker
+from skaldship.hosts import create_hostfilter_query, get_host_record, pagination, host_title_maker, host_asset_groups
 import gluon.contrib.simplejson
 import logging
 logger = logging.getLogger("web2py.app.kvasir")
@@ -216,6 +216,8 @@ def detail():
     hostipaddr=record.f_ipaddr
     engineername = db.auth_user[record.f_engineer].username
 
+    asset_groups = ','.join([g.role for g in host_asset_groups(record)])
+
     if record.f_macaddr:
         oui_res = oui_lookup(mac_addr=record.f_macaddr, nmap_os_db="%s/nmap-mac-prefixes" % settings.nmap_sharedir)
         oui_vendor = oui_res.get(record.f_macaddr, oui_res.get('error', 'None'))
@@ -308,6 +310,7 @@ def detail():
 
     response.title = "%s :: Host info :: %s" % (settings.title, host_title_maker(record))
     return dict(host=host,
+                asset_groups=asset_groups,
                 oui_vendor=oui_vendor,
                 netbios=netbios,
                 host_points=host_points,
@@ -423,13 +426,11 @@ def edit():
     # Prepopulate form manually, SQLFORM.factory doesn't accept record
     for field in db.t_hosts:
         form.vars[field.name] = record[field.name]
-    old_groups = db((db.auth_permission.name=='manage') &
-                       (db.auth_permission.table_name=='t_hosts') &
-                       (db.auth_permission.record_id==record.id)).select(db.auth_permission.group_id)
-    old_groups = [str(group.group_id) for group in old_groups]
+    old_groups = host_asset_groups(record)
+    old_groups = [str(group.id) for group in old_groups]
     form.vars['groups'] = old_groups
 
-    if form.process(dbio=False).accepted:
+    if form.process().accepted:
         new_groups = form.vars['groups']
         record.update(**db.t_hosts._filter_fields(form.vars))
         # Add permission to group added newly
@@ -510,6 +511,8 @@ def list():
                 else:
                     os = r.t_os.f_title
 
+                asset_groups = ','.join([g.role for g in host_asset_groups(r.t_hosts)])
+
                 atxt = {
                      '0': confirmed,
                      '1': ipaddr,
@@ -521,7 +524,7 @@ def list():
                      '7': r.t_hosts.f_netbios_name,
                      '8': os,
                      '9': r.auth_user.username,
-                     '10': r.t_hosts.f_asset_group,
+                     '10': asset_groups,
                      'DT_RowId': "%s" % (r.t_hosts.id),
                 }
 

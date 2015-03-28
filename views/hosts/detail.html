@@ -35,7 +35,7 @@
     {{pass}}
 
     <div class="span{{if auth.has_membership('admin'):}}6{{else:}}12{{pass}}" style="text-align:right">
-      <b>Assigned to: </b><span id="assignedto">{{=engineername}}</span> | <b>Asset group: </b><span id="assetgroup">{{=host.custom.widget.f_asset_group}}</span>
+      <b>Assigned to: </b><span id="assignedto">{{=engineername}}</span> | <b>Asset group: </b><span id="assetgroup">{{=asset_groups}}</span>
     </div>
   </div>
 </div>
