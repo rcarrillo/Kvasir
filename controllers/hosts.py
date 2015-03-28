@@ -361,8 +361,6 @@ def add():
         'f_hostname',
         'f_netbios_name',
         'f_macaddr',
-        'f_engineer',
-        'f_asset_group',
     ]
     db.t_hosts.f_engineer.default = auth.user.id
     if request.extension in ['load', 'json']:
@@ -400,6 +398,24 @@ def edit():
 
     attributes = dict() if request.extension not in ['load', 'json'] else \
                  dict(buttons=[], _action=URL('edit', args=[record.id]), _id="host_edit_form")
+
+    # Unpriviledged users can edit only a subset of the hosts fields
+    if not auth.has_membership('admin'):
+        fields = [
+            'f_confirmed',
+            'f_accessed',
+            'f_followup',
+            'f_engineer',
+            'f_asset_group',
+            'f_service_count',
+            'f_vuln_count',
+            'f_vuln_graph',
+            'f_exploit_count'
+        ]
+        for field in fields:
+            # Don't show these fields in the form
+            db.t_hosts[field].readable = False
+            db.t_hosts[field].writable = False
 
     form=SQLFORM.factory(db.t_hosts,
         Field('groups', requires=IS_IN_DB(db(q), 'auth_group.id', '%(role)s', multiple=True)), **attributes)
@@ -530,8 +546,6 @@ def list():
                 'f_hostname',
                 'f_netbios_name',
                 'f_macaddr',
-                'f_engineer',
-                'f_asset_group',
             ],
             cmd = 'hosttable.fnReloadAjax();'
         )
