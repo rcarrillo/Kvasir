@@ -20,6 +20,7 @@
 
 <div class="row-fluid">
   <div class="span12">
+    {{if auth.has_membership('admin'):}}
     <div class="span6">
       <a href="#" onclick="launchterm('{{=host.record.id}}')" id="launchtermlink">
       <img src="{{=URL(request.application,'static/images', 'terminal.png')}}" width="20" height="20" style="float:left"/>
@@ -31,8 +32,9 @@
       <b><u>F</u>ollow Up: </b>
       {{=host.custom.widget.f_followup}}
     </div>
+    {{pass}}
 
-    <div class="span6" style="text-align:right">
+    <div class="span{{if auth.has_membership('admin'):}}6{{else:}}12{{pass}}" style="text-align:right">
       <b>Assigned to: </b><span id="assignedto">{{=engineername}}</span> | <b>Asset group: </b><span id="assetgroup">{{=host.custom.widget.f_asset_group}}</span>
     </div>
   </div>

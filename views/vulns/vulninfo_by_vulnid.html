@@ -48,6 +48,7 @@
 
 <hr>
 
+{{if auth.has_membership('admin'):}}
 <div class="tabheader" style="clear: both;">
 
     <div id="tabs">
@@ -83,6 +84,7 @@
         </div>
     </div>
 </div>
+{{pass}}
 
 <script>
 var vulntable;

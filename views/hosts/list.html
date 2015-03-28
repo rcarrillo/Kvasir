@@ -10,7 +10,6 @@
         {{=XML(add_hosts.btn_show())}}
         {{if auth.has_membership('admin'):}}
         <a id="del_host" class="btn btn-small"><i class="icon-remove"></i> Delete Host</a>
-        {{pass}}
         <div class="btn-group">
             <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
             <i class="icon-pencil"></i> Mark
@@ -25,7 +24,6 @@
             <li><a id="no_follow_up">No Follow-up</a></li>
             </ul>
         </div>
-        {{if auth.has_membership('admin'):}}
         <div class="btn-group">
             <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
             <i class="icon-asterisk"></i> Mass Actions
