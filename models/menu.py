@@ -12,7 +12,7 @@
 
 _a = request.application
 
-response.logo = A(B('KVASIR'), _class="brand")
+response.logo = A(B('SPA'), _class="brand")
 response.title = settings.title
 response.subtitle = settings.subtitle
 response.meta.author = '%s <%s>' % (settings.author, settings.author_email)
