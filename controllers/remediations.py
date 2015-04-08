@@ -128,21 +128,32 @@ def applied_detail():
     if record is None:
         redirect(URL('default', 'error', vars={'msg': T('Applied remediation record not found')}))
 
-    comment_form = SQLFORM(db.t_applied_remediation_comments)
-    comment_form.vars.f_applied_remediation = record.id
-    if not comment_form.process().accepted and comment_form.errors:
-        s = 'comment form error: '
-        for k, v in comment_form.errors:
-            s += '%s: $s\n' % (k, v)
-        return s
+    # Workaround for https://github.com/web2py/web2py/issues/606
+    # https://groups.google.com/forum/#!topic/web2py/gdmRGC0lSTE
+    # https://groups.google.com/forum/#!topic/web2py/FETaNdXhJZI
+    import os
+    db.t_applied_remediation_attachments.f_attachment.uploadfolder = os.path.join(request.folder,'uploads')
 
-    attachment_form = SQLFORM(db.t_applied_remediation_attachments)
-    attachment_form.vars.f_applied_remediation = record.id
-    if not attachment_form.process().accepted and attachment_form.errors:
-        s = 'attachment form error: '
-        for k, v in comment_form.errors:
-            s += '%s: $s\n' % (k, v)
-        return s
+    form = SQLFORM.factory(
+        db.t_applied_remediation_comments,
+        db.t_applied_remediation_attachments,
+        table_name='t_applied_remediation_attachments', # used to generate the directory name when uploadseparate is set
+    )
+
+    if form.process().accepted:
+        if form.vars['f_text']:
+            db.t_applied_remediation_comments.insert(
+                f_applied_remediation=record.id,
+                f_text=form.vars.f_text,
+            )
+        if form.vars['f_attachment']:
+            db.t_applied_remediation_attachments.insert(
+                f_applied_remediation=record.id,
+                f_attachment=form.vars.f_attachment,
+            )
+    elif form.errors:
+        # FIXME silent fail!
+        pass
 
     comments = db(db.t_applied_remediation_comments.f_applied_remediation==record.id).select(
                    orderby=db.t_applied_remediation_comments.f_created_at,
@@ -174,4 +185,4 @@ def applied_detail():
                         record.f_user.username,
                      )
 
-    return dict(historial=historial, comment_form=comment_form, attachment_form=attachment_form)
+    return dict(form=form, historial=historial)
