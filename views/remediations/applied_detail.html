@@ -25,7 +25,33 @@
                   {{pass}}
                 </div>
               {{pass}}
-              {{=form}}
+              {{if applied_rem.f_status_id is None:}}
+                {{=form}}
+              {{pass}}
+              {{if auth.has_membership('admin'):}}
+                {{status_style = lambda level: ['info', 'success','warning', 'danger'][level] }}
+                {{if applied_rem.f_status_id is None:}}
+                  <div class="offset{{=10-len(statuses)}}">
+                  {{for status in statuses:}}
+                    <a class="remediation-status btn btn-{{=status_style(status.f_level)}}" data-pk="{{=status.id}}">{{=status.f_name}}</a>
+                  {{pass}}
+                  </div>
+                {{else:}}
+                    <div class="alert alert-{{=status_style(applied_rem.f_status_level)}}">{{=applied_rem.f_status_name}}</div>
+                    <a class="remediation-status btn btn-danger offset10" data-pk="-1">Reabrir</a>
+                {{pass}}
+                <script>
+                jQuery('.remediation-status').click(function(){
+                    var status = $(this);
+
+                    bootbox.confirm("{{=T('Are you sure you want to change the status to ')}}" + status.text() + "?", "{{=T('Cancel')}}", "{{=T('Confirm')}}", function (confirmed) {
+                        if (confirmed) {
+                            window.location = "{{=URL('applied_detail_status', args=[request.args(0)])}}" + "/" + status.data('pk');
+                        }
+                    });
+                });
+                </script>
+              {{pass}}
             </div>
         </div>
     </div>

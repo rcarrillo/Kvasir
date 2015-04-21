@@ -185,4 +185,28 @@ def applied_detail():
                         record.f_user.username,
                      )
 
-    return dict(form=form, historial=historial)
+    # Monkey path the status properties
+    if record.f_status_id is not None:
+        status = db.t_applied_remediation_statuses[record.f_status_id]
+        record.f_status_name = status.f_name
+        record.f_status_level = status.f_level
+
+    statuses = db(db.t_applied_remediation_statuses).select()
+
+    return dict(form=form, historial=historial, applied_rem=record, statuses=statuses)
+
+@auth.requires_membership('admin')
+def applied_detail_status():
+    record = db.t_applied_remediations[request.args(0)]
+    if record is None:
+        redirect(URL('default', 'error', vars={'msg': T('Applied remediation record not found')}))
+
+    if not request.args(1):
+        redirect(URL('default', 'error', vars={'msg': T('Bad parameters')}))
+
+    record.update_record(
+        f_status_id=request.args(1) if int(request.args(1)) != -1 else None
+    )
+
+    # Redirect to the detail page to add comments or attachments
+    redirect(URL('applied_detail', args=[record.id]))

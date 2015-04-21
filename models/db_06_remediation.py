@@ -30,6 +30,7 @@ db.define_table('t_vuln_remediations',
 ## Status of and applied remediatons
 db.define_table('t_applied_remediation_statuses',
     Field('f_name', 'string'),
+    Field('f_level', 'integer'),
     fake_migrate=settings.fake_migrate, migrate=settings.migrate)
 
 ########################################
