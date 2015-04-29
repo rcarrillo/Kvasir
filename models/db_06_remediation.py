@@ -30,6 +30,7 @@ db.define_table('t_vuln_remediations',
 ## Status of and applied remediatons
 db.define_table('t_applied_remediation_statuses',
     Field('f_name', 'string'),
+    Field('f_level', 'integer'),
     fake_migrate=settings.fake_migrate, migrate=settings.migrate)
 
 ########################################
@@ -40,6 +41,7 @@ db.define_table('t_applied_remediations',
     Field('f_status_id', 'reference t_applied_remediation_statuses'),
     Field('f_created_at', 'datetime', default=request.now),
     Field('f_user', 'reference auth_user', default=auth.user_id),
+    format=lambda r: A(T('applied remediation'), _href=URL('remediations', 'applied_detail', args=[r.id])),
     fake_migrate=settings.fake_migrate, migrate=settings.migrate)
 
 ########################################

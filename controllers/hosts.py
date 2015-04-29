@@ -839,3 +839,15 @@ def launch():
         response.flash = "Error submitting job: %s" % (task.errors)
 
     return dict()
+
+@auth.requires_login()
+def management_logs():
+    record = db.t_hosts(request.args(0)) or redirect(URL('default', 'error', vars={'msg': T('Host record not found')}))
+
+    mng_logs = db(db.t_host_logs.f_hosts_id==record.id).select()
+
+    response.title = "%s :: Management events on %s" % (
+        settings.tittle,
+        db.t_hosts._format(record),
+    )
+    return dict(mng_logs=mng_logs)

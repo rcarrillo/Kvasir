@@ -1,0 +1,20 @@
+{{extend 'layout.html'}}
+
+<div class="row-fluid">
+    <div class="span8">
+        <div class="widget-box">
+            <div class="widget-title">
+                <span class="icon">
+                 <i class="icon-edit"></i>
+                </span>
+                <h5>{{=response.title or settings.title}}</h5>
+            </div>
+            <div class="widget-content">
+            {{for log in mng_logs:}}
+                <i class="icon-time"></i> {{=log.f_event_time}}: {{=XML(db.t_host_logs._format(log))}}
+                <hr>
+            {{pass}}
+            </div>
+        </div>
+    </div>
+</div>
