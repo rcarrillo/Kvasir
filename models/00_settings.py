@@ -63,7 +63,7 @@ settings.version = "1.1.0"
 
 # Authentication.
 login = settings.kvasir_config.get('login', {})
-settings.login_method = login.get('method', 'local')
+settings.login_methods = login.get('methods', ['local'])
 settings.login_config = login.get('config', '')
 del login
 
