@@ -53,6 +53,18 @@ auth.settings.allow_basic_login=True
 #crud.settings.auth = auth                      # =auth to enforce authorization on crud
 current.auth = auth
 
+from gluon.contrib.login_methods.ldap_auth import ldap_auth
+
+if 'local' not in settings.login_methods:
+    auth.settings.login_methods = []
+
+if 'ldap' in settings.login_methods:
+    auth.settings.login_methods.append(ldap_auth(
+        server=settings.login_config.get('ldap_server'),
+        mode=settings.login_config.get('ldap_mode'),
+        base_dn=settings.login_config.get('ldap_basedn'),
+    ))
+
 response.generic_patterns = ['*.load', '*.json', '*.xml', '*.html', '*.csv']
 response.combine_files = True
 response.minify_files = True
