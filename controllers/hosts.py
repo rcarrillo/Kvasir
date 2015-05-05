@@ -392,10 +392,12 @@ def edit():
     # all DNS servers or web servers, etc)
     # A host can belong to more than one asset group.
 
-    # Asset groups the logged-in user has membership
-    q = ((db.auth_membership.user_id==auth.user_id) &
-         (db.auth_membership.group_id==db.auth_group.id) &
-         (db.auth_group.f_asset_group==True))
+    q = (db.auth_group.f_asset_group==True)
+
+    # If nonadmin show only the asset groups the logged-in user has membership
+    if not auth.has_membership('admin'):
+        q &= ((db.auth_membership.user_id==auth.user_id) &
+              (db.auth_membership.group_id==db.auth_group.id))
 
     # Based on http://blog.jotbe-fx.de/articles/2522/web2py-Normalized-many-to-many-model-with-multiselect-drop-down
 
