@@ -50,20 +50,23 @@ plugins = PluginManager()
 auth.settings.hmac_key = settings.kvasir_config.get('security_key') # before define_tables()
 auth.settings.actions_disabled = [ 'register', 'request_reset_password', 'retrieve_username' ]
 auth.settings.allow_basic_login=True
+auth.settings.alternate_requires_registration = True
 #crud.settings.auth = auth                      # =auth to enforce authorization on crud
 current.auth = auth
 
 from gluon.contrib.login_methods.ldap_auth import ldap_auth
 
-if 'local' not in settings.login_methods:
-    auth.settings.login_methods = []
+auth.settings.login_methods = []
 
-if 'ldap' in settings.login_methods:
-    auth.settings.login_methods.append(ldap_auth(
-        server=settings.login_config.get('ldap_server'),
-        mode=settings.login_config.get('ldap_mode'),
-        base_dn=settings.login_config.get('ldap_basedn'),
-    ))
+for m in settings.login_methods:
+    if m == 'local':
+        auth.settings.login_methods.append(auth)
+    elif m == 'ldap':
+        auth.settings.login_methods.append(ldap_auth(
+            server=settings.login_config.get('ldap_server'),
+            mode=settings.login_config.get('ldap_mode'),
+            base_dn=settings.login_config.get('ldap_basedn'),
+        ))
 
 response.generic_patterns = ['*.load', '*.json', '*.xml', '*.html', '*.csv']
 response.combine_files = True
