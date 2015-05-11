@@ -95,7 +95,7 @@ def register_log(table, signal, output_format):
             event_type_id = event_type.id
 
         def save_record(*args):
-            # Callback should return a tuple containg the hosts and log values
+            # Callback must return a 2-tuple containg the hosts and log values
             host, values = callback(*args)
             if not host and not values:
                 return
@@ -120,7 +120,7 @@ def register_log(table, signal, output_format):
 o_format = T('{user} applied remediation')
 @register_log('t_applied_remediations', '_after_insert', o_format)
 def log_insert_applied_remediation(f, id):
-    return f.f_hosts_id,
+    return f.f_hosts_id, None
 
 o_format = T('{user} changed remediation status to {status}')
 @register_log('t_applied_remediations', '_after_update', o_format)
