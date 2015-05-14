@@ -66,6 +66,8 @@ for m in settings.login_methods:
             server=settings.login_config.get('ldap_server'),
             mode=settings.login_config.get('ldap_mode'),
             base_dn=settings.login_config.get('ldap_basedn'),
+            bind_dn=settings.login_config.get('ldap_binddn'),
+            bind_pw=settings.login_config.get('ldap_bindpw'),
         ))
 
 response.generic_patterns = ['*.load', '*.json', '*.xml', '*.html', '*.csv']
