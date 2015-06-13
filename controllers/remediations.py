@@ -13,6 +13,12 @@ def add():
     return dict(form=form)
 
 @auth.requires_login()
+def list():
+    grid = SQLFORM.grid(db.t_remediations, deletable=False)
+
+    return dict(grid=grid)
+
+@auth.requires_login()
 def edit():
     record = db.t_remediations[request.args(0)] or redirect(URL('default', 'error', vars={'msg': T('Remediation record not found')}))
     response.title = "%s :: Update Remediation :: %s" % (settings.title, record.f_name)
