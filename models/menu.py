@@ -56,6 +56,12 @@ response.menu = [
               (T('List OS Refs'), False, URL(_a,'os','refs_list'), []),
               (T('Add OS Ref'), False, URL(_a,'os','refs_add'), []),
           ]),
+         (T('Remediations'), False, '',
+          [
+              (T('List'), False, URL(_a,'remediations','list'), []),
+              (T('Add '), False, URL(_a,'remediations','add'), []),
+              (T('Associate vulnerability '), False, URL(_a,'remediations','associate_vuln'), []),
+          ]),
          (T('Other'), False, '',
           [
               (T('List Evidence'), False, URL(_a,'evidence','list'), []),
