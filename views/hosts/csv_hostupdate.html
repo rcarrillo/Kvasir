@@ -17,10 +17,14 @@
     <div class="alert alert-info span4">
         <p>CSV file has the following format:</p>
 
-        <pre>IP Address,Hostname</pre>
+        <pre>IP Address,Hostname,Group</pre>
+
+        <p class="alert alert-warning">Trailing spaces, single quotes and double quotes will be ignored</p>
 
         <p>Select "Overwrite" to ignore hostnames that already exist, otherwise the record will be skipped.</p>
 
         <p>Select "Add missing hosts" to do just that.</p>
+
+        <p>Select "Assign hosts to groups" to do give the group permission to manage the host.</p>
     </div>
 </div>

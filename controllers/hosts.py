@@ -699,34 +699,69 @@ def csv_hostupdate():
     import csv, os
     form=SQLFORM.factory(
         Field('csvfile', 'upload', uploadfolder=os.path.join(request.folder, 'data', 'misc'), label=T('CSV Filename')),
-        Field('overwrite', 'boolean', default=False, label=T('Overwrite existing data')),
-        Field('add_hosts', 'boolean', default=False, label=T('Add missing hosts')),
+        Field('overwrite', 'boolean', default=True, label=T('Overwrite existing data')),
+        Field('add_hosts', 'boolean', default=True, label=T('Add missing hosts')),
+        Field('assign_group', 'boolean', default=True, label=T('Assign hosts to groups')),
     )
     if form.errors:
         response.flash = 'Error in form'
     elif form.accepts(request.vars, session):
         filename = os.path.join(request.folder, 'data/misc', form.vars.csvfile)
         csv_rdr = csv.reader(open(filename, "r"))
+        added = 0
         updated = 0
         skipped = 0
         for row in csv_rdr:
-            record = None
-            if row[0] != '':
-                record=db(db.t_hosts.f_ipaddr==row[0]).select().first()
-            if record is None:
-                logging.warning("Host record not found for %s" % row)
-                skipped += 1
+
+            try:
+                ip, hostname, group = [v.decode('ascii', 'ignore').strip('\'').strip('"').strip() for v in row]
+            except ValueError:
+                logging.warning('Invalid row: %s' % row)
                 continue
-            if record.f_hostname is None or record.f_hostname == '':
-                record.update_record(f_hostname = row[1].strip('\n'))
-                updated += 1
-            elif form.vars.overwrite:
-                record.update_record(f_hostname = row[1].strip('\n'))
+
+            logging.info('Processing %s' % ip)
+
+            record = None
+            if ip != '':
+                record=db(db.t_hosts.f_ipaddr==ip).select().first()
+
+            if not record:
+                if not form.vars.add_hosts:
+                    logging.warning("Host record not found for %s" % row)
+                    skipped += 1
+                    continue
+                else:
+                    # Add new host
+                    try:
+                        host_id = db.t_hosts.insert(f_ipaddr=ip, f_hostname=hostname)
+                        record = db(db.t_hosts.f_ipaddr==ip).select().first()
+                    except:
+                        logging.error('Failed to insert row: %s' % row)
+                        continue
+
+                    # Assign host to group
+                    if group:
+                        group_id = auth.id_group(group) or auth.add_group(group)
+
+                        db.auth_group[group_id].update_record(f_asset_group=True)
+                        auth.add_permission(group_id, 'manage', db.t_hosts, record.id)
+
+                    added += 1
+                    continue
+
+            if (record.f_hostname is None or record.f_hostname == '') or form.vars.overwrite:
+                record.update_record(f_hostname = hostname)
                 updated += 1
             else:
                 skipped += 1
+
+            if group and form.vars.assign_group:
+                group_id = auth.id_group(group) or auth.add_group(group)
+                db.auth_group[group_id].update_record(f_asset_group=True)
+                auth.add_permission(group_id, 'manage', db.t_hosts, record.id)
+
             db.commit()
-        response.flash = "Updated %s records, skipped %s" % (updated, skipped)
+        response.flash = "Added %s records, updated %s, skipped %s" % (added, updated, skipped)
         os.remove(filename)
 
     response.title = "%s :: CSV Hostname Update" % (settings.title)
